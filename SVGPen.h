@@ -6,7 +6,7 @@
 class SVGPen : public QPen
 {
     // reference: https://www.w3.org/TR/SVGTiny12/painting.html#StrokeProperty
-    // warning: 该类假定传给它的属性值要么是空值，要么是符合SVG标准要求的值。使用错误值被视为未定义行为。
+    // warning: 该类假定传给它的属性值要么是空字符串，要么是符合SVG标准要求的值。使用错误值被视为未定义行为。
 
 private:
     void parseStroke(const QString &stroke);
