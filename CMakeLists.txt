@@ -19,7 +19,9 @@ find_package(Qt6 COMPONENTS
 
 add_executable(SVGParser main.cpp
         SVGParser.cpp
-        SVGParser.h)
+        SVGParser.h
+        SVGPen.cpp
+        SVGPen.h)
 target_link_libraries(SVGParser
         Qt::Core
         Qt::Gui
