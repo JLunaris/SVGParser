@@ -1,5 +1,10 @@
 #include "SVGParser.h"
 
+#include "GraphicsPathItem.h"
+#include "SVGBrush.h"
+#include "SVGPainterPath.h"
+#include "SVGPen.h"
+
 #include <QBuffer>
 #include <QDebug>
 #include <QPainter>
@@ -28,7 +33,7 @@ bool SVGParser::loadSVG(const QString &fileName)
     // Render to generator.
     QPainter painter;
     painter.begin(&generator);
-    m_renderer.render(&painter);
+    m_renderer.render(&painter, m_renderer.viewBoxF()); // 显式指定渲染范围，解决了因“同时指定了viewBox和size属性”时引起的svg缩放而导致只渲染部分区域的问题
     painter.end();
 
     // Set current position to 0.
@@ -44,4 +49,36 @@ bool SVGParser::loadSVG(const QString &fileName)
     svgBuffer.close();
 
     return true;
+}
+
+GraphicsPathItem *SVGParser::parseRect(const QDomElement &e, const QDomNamedNodeMap &inheritedAttributes) const
+{
+    GraphicsPathItem *item {};
+    SVGPen pen;
+    SVGBrush brush;
+    SVGPainterPath path;
+
+    // parse inherited attributes
+    pen.syncWithAttributes(inheritedAttributes);
+    brush.syncWithAttributes(inheritedAttributes);
+    path.syncWithAttributes(inheritedAttributes);
+
+    // 获取元素的属性。如果属性值无效或不存在该属性，则结果为0。
+    qreal x {e.attribute("x").toDouble()};
+    qreal y {e.attribute("y").toDouble()};
+    qreal width {e.attribute("width").toDouble()};
+    qreal height {e.attribute("height").toDouble()};
+
+    // parse attributes
+    pen.syncWithAttributes(e.attributes());
+    brush.syncWithAttributes(e.attributes());
+    path.syncWithAttributes(e.attributes());
+
+    // apply all the parsed attributes to item
+    path.addRect(x, y, width, height);
+    item = new GraphicsPathItem {path};
+    item->setPen(pen);
+    item->setBrush(brush);
+
+    return item;
 }

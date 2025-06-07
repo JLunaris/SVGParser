@@ -1,9 +1,11 @@
 #pragma once
 
 #include <QDomDocument>
+#include <QGraphicsItem>
 #include <QObject>
-#include <QSvgGenerator>
 #include <QSvgRenderer>
+
+class GraphicsPathItem;
 
 class SVGParser : public QObject
 {
@@ -14,6 +16,13 @@ class SVGParser : public QObject
 
 public Q_SLOTS:
     bool loadSVG(const QString &fileName);
+
+protected:
+    // 获取<svg>结点
+    QDomElement SVGNode() const { return m_doc.documentElement(); }
+
+    // 解析各结点
+    virtual GraphicsPathItem *parseRect(const QDomElement &e, const QDomNamedNodeMap &inheritedAttributes) const;
 
 public:
     SVGParser() = default;
