@@ -82,3 +82,35 @@ GraphicsPathItem *SVGParser::parseRect(const QDomElement &e, const QDomNamedNode
 
     return item;
 }
+
+GraphicsPathItem *SVGParser::parseEllipse(const QDomElement &e, const QDomNamedNodeMap &inheritedAttributes) const
+{
+    GraphicsPathItem *item {};
+    SVGPen pen;
+    SVGBrush brush;
+    SVGPainterPath path;
+
+    // parse inherited attributes
+    pen.syncWithAttributes(inheritedAttributes);
+    brush.syncWithAttributes(inheritedAttributes);
+    path.syncWithAttributes(inheritedAttributes);
+
+    // 获取元素的属性。如果属性值无效或不存在该属性，则结果为0。
+    qreal cx {e.attribute("cx").toDouble()};
+    qreal cy {e.attribute("cy").toDouble()};
+    qreal rx {e.attribute("rx").toDouble()};
+    qreal ry {e.attribute("ry").toDouble()};
+
+    // parse attributes
+    pen.syncWithAttributes(e.attributes());
+    brush.syncWithAttributes(e.attributes());
+    path.syncWithAttributes(e.attributes());
+
+    // apply all the parsed attributes to item
+    path.addEllipse(cx, cy, rx, ry);
+    item = new GraphicsPathItem {path};
+    item->setPen(pen);
+    item->setBrush(brush);
+
+    return item;
+}
