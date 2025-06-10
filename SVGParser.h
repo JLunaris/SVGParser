@@ -24,6 +24,7 @@ protected:
     // 解析各结点
     virtual GraphicsPathItem *parseRect(const QDomElement &e, const QDomNamedNodeMap &inheritedAttributes) const;
     virtual GraphicsPathItem *parseEllipse(const QDomElement &e, const QDomNamedNodeMap &inheritedAttributes) const;
+    virtual GraphicsPathItem *parseCircle(const QDomElement &e, const QDomNamedNodeMap &inheritedAttributes) const;
 
 public:
     SVGParser() = default;
