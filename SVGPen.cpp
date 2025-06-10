@@ -57,7 +57,7 @@ void SVGPen::parseStrokeDasharray(const QString &strokeDasharray)
     else if (strokeDasharray == "none")
         setStyle(Qt::SolidLine);
     else {
-        QList<QString> stringList {strokeDasharray.split(',').toList()};
+        QStringList stringList {strokeDasharray.split(',')};
         QList<qreal> pattern;
 
         for (const QString &string: stringList)

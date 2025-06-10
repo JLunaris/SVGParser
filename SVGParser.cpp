@@ -8,6 +8,7 @@
 #include <QBuffer>
 #include <QDebug>
 #include <QPainter>
+#include <QRegularExpression>
 #include <QSvgGenerator>
 
 bool SVGParser::loadSVG(const QString &fileName)
@@ -139,6 +140,50 @@ GraphicsPathItem *SVGParser::parseCircle(const QDomElement &e, const QDomNamedNo
 
     // apply all the parsed attributes to item
     path.addEllipse(cx, cy, r, r);
+    item = new GraphicsPathItem {path};
+    item->setPen(pen);
+    item->setBrush(brush);
+
+    return item;
+}
+
+GraphicsPathItem *SVGParser::parsePolyline(const QDomElement &e, const QDomNamedNodeMap &inheritedAttributes) const
+{
+    GraphicsPathItem *item {};
+    SVGPen pen;
+    SVGBrush brush;
+    SVGPainterPath path;
+
+    // parse inherited attributes
+    pen.syncWithAttributes(inheritedAttributes);
+    brush.syncWithAttributes(inheritedAttributes);
+    path.syncWithAttributes(inheritedAttributes);
+
+    // 获取并解析元素的属性。如果不存在该属性，则结果为空字符串。
+    // reference: https://www.w3.org/TR/SVGTiny12/shapes.html#PolylineElement
+    QString points {e.attribute("points")};
+    if (!points.isEmpty()) {
+        QStringList stringList {points.split(QRegularExpression {R"([\s,]+)"}, Qt::SkipEmptyParts)};
+
+        assert(stringList.size() % 2 == 0);
+
+        double x0 {stringList[0].toDouble()};
+        double y0 {stringList[1].toDouble()};
+        path.moveTo(x0, y0);
+
+        for (qsizetype i {2}; i < stringList.size(); i += 2) {
+            double x {stringList[i].toDouble()};
+            double y {stringList[i + 1].toDouble()};
+            path.lineTo(x, y);
+        }
+    }
+
+    // parse attributes
+    pen.syncWithAttributes(e.attributes());
+    brush.syncWithAttributes(e.attributes());
+    path.syncWithAttributes(e.attributes());
+
+    // apply all the parsed attributes to item
     item = new GraphicsPathItem {path};
     item->setPen(pen);
     item->setBrush(brush);
