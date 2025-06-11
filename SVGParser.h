@@ -26,6 +26,10 @@ protected:
     virtual GraphicsPathItem *parseEllipse(const QDomElement &e, const QDomNamedNodeMap &inheritedAttributes) const;
     virtual GraphicsPathItem *parseCircle(const QDomElement &e, const QDomNamedNodeMap &inheritedAttributes) const;
     virtual GraphicsPathItem *parsePolyline(const QDomElement &e, const QDomNamedNodeMap &inheritedAttributes) const;
+    // <line>被QSvgGenerator视为<polyline>的一种
+    // <polygon>被QSvgGenerator视为<path>的一种
+
+    virtual GraphicsPathItem *parsePath(const QDomElement &e, const QDomNamedNodeMap &inheritedAttributes) const;
 
 public:
     SVGParser() = default;

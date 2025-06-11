@@ -162,8 +162,9 @@ GraphicsPathItem *SVGParser::parsePolyline(const QDomElement &e, const QDomNamed
     // 获取并解析元素的属性。如果不存在该属性，则结果为空字符串。
     // reference: https://www.w3.org/TR/SVGTiny12/shapes.html#PolylineElement
     QString points {e.attribute("points")};
-    if (!points.isEmpty()) {
-        QStringList stringList {points.split(QRegularExpression {R"([\s,]+)"}, Qt::SkipEmptyParts)};
+    QStringView pointsView {points};
+    if (!pointsView.isEmpty()) {
+        QList<QStringView> stringList {pointsView.split(QRegularExpression {R"([\s,]+)"}, Qt::SkipEmptyParts)};
 
         assert(stringList.size() % 2 == 0);
 
@@ -175,6 +176,88 @@ GraphicsPathItem *SVGParser::parsePolyline(const QDomElement &e, const QDomNamed
             double x {stringList[i].toDouble()};
             double y {stringList[i + 1].toDouble()};
             path.lineTo(x, y);
+        }
+    }
+
+    // parse attributes
+    pen.syncWithAttributes(e.attributes());
+    brush.syncWithAttributes(e.attributes());
+    path.syncWithAttributes(e.attributes());
+
+    // apply all the parsed attributes to item
+    item = new GraphicsPathItem {path};
+    item->setPen(pen);
+    item->setBrush(brush);
+
+    return item;
+}
+
+GraphicsPathItem *SVGParser::parsePath(const QDomElement &e, const QDomNamedNodeMap &inheritedAttributes) const
+{
+    GraphicsPathItem *item {};
+    SVGPen pen;
+    SVGBrush brush;
+    SVGPainterPath path;
+
+    // parse inherited attributes
+    pen.syncWithAttributes(inheritedAttributes);
+    brush.syncWithAttributes(inheritedAttributes);
+    path.syncWithAttributes(inheritedAttributes);
+
+    // 获取并解析元素的属性。如果不存在该属性，则结果为空字符串。
+    // reference: https://www.w3.org/TR/SVGTiny12/paths.html
+    QString d {e.attribute("d")};
+    QStringView dView {d};
+    if (!dView.isEmpty()) {
+        QList<QStringView> stringList {dView.split(' ', Qt::SkipEmptyParts)};
+
+        auto it {stringList.begin()};
+        while (it != stringList.end()) {
+            if (it->startsWith('M')) { // 例如"M10,15"
+                it->slice(1);
+                qsizetype commaIndex {it->indexOf(',')};
+                double x {it->sliced(0, commaIndex).toDouble()};
+                double y {it->sliced(commaIndex + 1).toDouble()};
+                path.moveTo(x, y);
+                ++it;
+            } else if (it->startsWith('L')) { // 例如"L38,15"
+                it->slice(1);
+                qsizetype commaIndex {it->indexOf(',')};
+                double x {it->sliced(0, commaIndex).toDouble()};
+                double y {it->sliced(commaIndex + 1).toDouble()};
+                path.lineTo(x, y);
+                ++it;
+            } else if (it->startsWith('C')) { // 例如"C15,23"
+                QPointF ctrlPt1;
+                QPointF ctrlPt2;
+                QPointF endPt;
+
+                qsizetype commaIndex;
+                double x, y;
+
+                it->slice(1);
+                commaIndex = it->indexOf(',');
+                x = it->sliced(0, commaIndex).toDouble();
+                y = it->sliced(commaIndex + 1).toDouble();
+                ctrlPt1 = QPointF {x, y};
+                ++it;
+
+                // 此时*it应形如"12,34"(即不带前缀字母)
+                commaIndex = it->indexOf(',');
+                x = it->sliced(0, commaIndex).toDouble();
+                y = it->sliced(commaIndex + 1).toDouble();
+                ctrlPt2 = QPointF {x, y};
+                ++it;
+
+                // 此时*it应形如"12,34"(即不带前缀字母)
+                commaIndex = it->indexOf(',');
+                x = it->sliced(0, commaIndex).toDouble();
+                y = it->sliced(commaIndex + 1).toDouble();
+                ctrlPt2 = QPointF {x, y};
+                ++it;
+
+                path.cubicTo(ctrlPt1, ctrlPt2, endPt);
+            }
         }
     }
 
