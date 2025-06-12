@@ -273,3 +273,12 @@ GraphicsPathItem *SVGParser::parsePath(const QDomElement &e, const QDomNamedNode
 
     return item;
 }
+
+QDomNamedNodeMap SVGParser::parseG(const QDomElement &e, QDomNamedNodeMap inheritedAttributes) const
+{
+    QDomNamedNodeMap localAttributes {e.attributes()};
+    for (int i {0}; i < localAttributes.count(); ++i) {
+        inheritedAttributes.setNamedItem(localAttributes.item(i));
+    }
+    return inheritedAttributes;
+}
