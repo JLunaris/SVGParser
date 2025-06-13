@@ -30,7 +30,7 @@ protected:
     // <polygon>被QSvgGenerator视为<path>的一种
 
     virtual GraphicsPathItem *parsePath(const QDomElement &e, const QDomNamedNodeMap &inheritedAttributes) const;
-    virtual QDomNamedNodeMap parseG(const QDomElement &e, QDomNamedNodeMap inheritedAttributes = QDomNamedNodeMap {}) const;
+    virtual QDomNamedNodeMap parseG(const QDomElement &e, QDomNamedNodeMap inheritedAttributes) const;
 
 public:
     SVGParser() = default;
@@ -41,4 +41,6 @@ public:
     QRectF viewBoxF() const { return m_renderer.viewBoxF(); }
 
     QSize size() const { return m_renderer.defaultSize(); }
+
+    [[nodiscard]] std::vector<QGraphicsPathItem *> parse() const;
 };

@@ -253,7 +253,7 @@ GraphicsPathItem *SVGParser::parsePath(const QDomElement &e, const QDomNamedNode
                 commaIndex = it->indexOf(',');
                 x = it->sliced(0, commaIndex).toDouble();
                 y = it->sliced(commaIndex + 1).toDouble();
-                ctrlPt2 = QPointF {x, y};
+                endPt = QPointF {x, y};
                 ++it;
 
                 path.cubicTo(ctrlPt1, ctrlPt2, endPt);
@@ -281,4 +281,28 @@ QDomNamedNodeMap SVGParser::parseG(const QDomElement &e, QDomNamedNodeMap inheri
         inheritedAttributes.setNamedItem(localAttributes.item(i));
     }
     return inheritedAttributes;
+}
+
+std::vector<QGraphicsPathItem *> SVGParser::parse() const
+{
+    std::vector<QGraphicsPathItem *> items;
+
+    QDomElement outerGNode {SVGNode().firstChildElement("g")};
+    QDomNamedNodeMap outerAttributes {outerGNode.attributes()};
+    QDomNodeList childGNodes {outerGNode.childNodes()};
+
+    for (auto g: childGNodes) {
+        QDomNamedNodeMap attributes {parseG(g.toElement(), outerAttributes)};
+        QDomElement itemNode {g.firstChild().toElement()};
+        if (itemNode.isNull()) continue;
+
+        QString itemType {itemNode.tagName()};
+        if (itemType == "rect")
+            items.push_back(parseRect(itemNode, attributes));
+        else if (itemType == "path")
+            items.push_back(parsePath(itemNode, attributes));
+    }
+
+    //    qDebug() << childGNodes.size();
+    return items;
 }
