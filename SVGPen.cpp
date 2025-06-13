@@ -6,8 +6,10 @@ void SVGPen::parseStroke(const QString &stroke)
         return;
     else if (stroke == "none")
         setStyle(Qt::NoPen);
-    else
+    else {
+        setStyle(Qt::SolidLine);
         setColor(QColor::fromString(stroke));
+    }
 }
 
 void SVGPen::parseStrokeWidth(const QString &strokeWidth)

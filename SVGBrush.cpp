@@ -6,8 +6,10 @@ void SVGBrush::parseFill(const QString &fill)
         return;
     else if (fill == "none")
         setStyle(Qt::NoBrush);
-    else
+    else {
+        setStyle(Qt::SolidPattern);
         setColor(QColor::fromString(fill));
+    }
 }
 
 void SVGBrush::parseFillOpacity(const QString &fillOpacity)
