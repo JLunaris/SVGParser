@@ -33,7 +33,7 @@ protected:
     virtual QDomNamedNodeMap parseG(const QDomElement &e, QDomNamedNodeMap inheritedAttributes) const;
 
 public:
-    SVGParser() = default;
+    SVGParser();
 
     // 获取Qt化后的svg文件的DOM树
     QDomDocument domDocument() const { return m_doc; }

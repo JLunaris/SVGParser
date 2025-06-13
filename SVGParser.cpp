@@ -290,6 +290,12 @@ QDomNamedNodeMap SVGParser::parseG(const QDomElement &e, QDomNamedNodeMap inheri
     return inheritedAttributes;
 }
 
+SVGParser::SVGParser()
+{
+    m_renderer.setOptions(QtSvg::Tiny12FeaturesOnly); // 仅解析SVG 1.2 Tiny规范的标签，不属于该规范的标签一律不解析
+    // 这样做是为了避免Qt将复杂的标签强行解析为<image>标签，这样的图元缩放会失真
+}
+
 std::vector<QGraphicsPathItem *> SVGParser::parse() const
 {
     std::vector<QGraphicsPathItem *> items;
