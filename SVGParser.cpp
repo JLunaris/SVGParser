@@ -286,23 +286,32 @@ QDomNamedNodeMap SVGParser::parseG(const QDomElement &e, QDomNamedNodeMap inheri
 std::vector<QGraphicsPathItem *> SVGParser::parse() const
 {
     std::vector<QGraphicsPathItem *> items;
+    QDomElement SVGNode {this->SVGNode()};
 
-    QDomElement outerGNode {SVGNode().firstChildElement("g")};
+    // 开始解析图形元素
+    QDomElement outerGNode {SVGNode.firstChildElement("g")};
     QDomNamedNodeMap outerAttributes {outerGNode.attributes()};
-    QDomNodeList childGNodes {outerGNode.childNodes()};
 
-    for (auto g: childGNodes) {
-        QDomNamedNodeMap attributes {parseG(g.toElement(), outerAttributes)};
-        QDomElement itemNode {g.firstChild().toElement()};
+    QDomNodeList innerGNodes {outerGNode.childNodes()};
+
+    for (const QDomNode &innerGNode: innerGNodes) {
+        QDomElement itemNode {innerGNode.firstChild().toElement()};
         if (itemNode.isNull()) continue;
+
+        QDomNamedNodeMap attributes {parseG(innerGNode.toElement(), outerAttributes)};
 
         QString itemType {itemNode.tagName()};
         if (itemType == "rect")
             items.push_back(parseRect(itemNode, attributes));
+        else if (itemType == "ellipse")
+            items.push_back(parseEllipse(itemNode, attributes));
+        else if (itemType == "circle")
+            items.push_back(parseCircle(itemNode, attributes));
+        else if (itemType == "polyline")
+            items.push_back(parsePolyline(itemNode, attributes));
         else if (itemType == "path")
             items.push_back(parsePath(itemNode, attributes));
     }
 
-    //    qDebug() << childGNodes.size();
     return items;
 }
