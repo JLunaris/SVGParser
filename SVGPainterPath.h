@@ -5,7 +5,6 @@
 
 class SVGPainterPath : public QPainterPath
 {
-private:
     void parseFillRule(const QString &fillRule);
 
 public:

@@ -4,6 +4,7 @@
 #include "SVGBrush.h"
 #include "SVGPainterPath.h"
 #include "SVGPen.h"
+#include "SVGTransform.h"
 
 #include <QBuffer>
 #include <QDebug>
@@ -58,11 +59,13 @@ GraphicsPathItem *SVGParser::parseRect(const QDomElement &e, const QDomNamedNode
     SVGPen pen;
     SVGBrush brush;
     SVGPainterPath path;
+    SVGTransform transform;
 
     // parse inherited attributes
     pen.syncWithAttributes(inheritedAttributes);
     brush.syncWithAttributes(inheritedAttributes);
     path.syncWithAttributes(inheritedAttributes);
+    transform.syncWithAttributes(inheritedAttributes);
 
     // 获取元素的属性。如果属性值无效或不存在该属性，则结果为0。
     qreal x {e.attribute("x").toDouble()};
@@ -70,16 +73,15 @@ GraphicsPathItem *SVGParser::parseRect(const QDomElement &e, const QDomNamedNode
     qreal width {e.attribute("width").toDouble()};
     qreal height {e.attribute("height").toDouble()};
 
-    // parse attributes
+    // parse attributes: for 'vector-effect'
     pen.syncWithAttributes(e.attributes());
-    brush.syncWithAttributes(e.attributes());
-    path.syncWithAttributes(e.attributes());
 
     // apply all the parsed attributes to item
     path.addRect(x, y, width, height);
     item = new GraphicsPathItem {path};
     item->setPen(pen);
     item->setBrush(brush);
+    item->setTransform(transform);
 
     return item;
 }
@@ -90,11 +92,13 @@ GraphicsPathItem *SVGParser::parseEllipse(const QDomElement &e, const QDomNamedN
     SVGPen pen;
     SVGBrush brush;
     SVGPainterPath path;
+    SVGTransform transform;
 
     // parse inherited attributes
     pen.syncWithAttributes(inheritedAttributes);
     brush.syncWithAttributes(inheritedAttributes);
     path.syncWithAttributes(inheritedAttributes);
+    transform.syncWithAttributes(inheritedAttributes);
 
     // 获取元素的属性。如果属性值无效或不存在该属性，则结果为0。
     qreal cx {e.attribute("cx").toDouble()};
@@ -102,16 +106,15 @@ GraphicsPathItem *SVGParser::parseEllipse(const QDomElement &e, const QDomNamedN
     qreal rx {e.attribute("rx").toDouble()};
     qreal ry {e.attribute("ry").toDouble()};
 
-    // parse attributes
+    // parse attributes: for 'vector-effect'
     pen.syncWithAttributes(e.attributes());
-    brush.syncWithAttributes(e.attributes());
-    path.syncWithAttributes(e.attributes());
 
     // apply all the parsed attributes to item
     path.addEllipse(cx, cy, rx, ry);
     item = new GraphicsPathItem {path};
     item->setPen(pen);
     item->setBrush(brush);
+    item->setTransform(transform);
 
     return item;
 }
@@ -122,27 +125,28 @@ GraphicsPathItem *SVGParser::parseCircle(const QDomElement &e, const QDomNamedNo
     SVGPen pen;
     SVGBrush brush;
     SVGPainterPath path;
+    SVGTransform transform;
 
     // parse inherited attributes
     pen.syncWithAttributes(inheritedAttributes);
     brush.syncWithAttributes(inheritedAttributes);
     path.syncWithAttributes(inheritedAttributes);
+    transform.syncWithAttributes(inheritedAttributes);
 
     // 获取元素的属性。如果属性值无效或不存在该属性，则结果为0。
     qreal cx {e.attribute("cx").toDouble()};
     qreal cy {e.attribute("cy").toDouble()};
     qreal r {e.attribute("r").toDouble()};
 
-    // parse attributes
+    // parse attributes: for 'vector-effect'
     pen.syncWithAttributes(e.attributes());
-    brush.syncWithAttributes(e.attributes());
-    path.syncWithAttributes(e.attributes());
 
     // apply all the parsed attributes to item
     path.addEllipse(cx, cy, r, r);
     item = new GraphicsPathItem {path};
     item->setPen(pen);
     item->setBrush(brush);
+    item->setTransform(transform);
 
     return item;
 }
@@ -153,11 +157,13 @@ GraphicsPathItem *SVGParser::parsePolyline(const QDomElement &e, const QDomNamed
     SVGPen pen;
     SVGBrush brush;
     SVGPainterPath path;
+    SVGTransform transform;
 
     // parse inherited attributes
     pen.syncWithAttributes(inheritedAttributes);
     brush.syncWithAttributes(inheritedAttributes);
     path.syncWithAttributes(inheritedAttributes);
+    transform.syncWithAttributes(inheritedAttributes);
 
     // 获取并解析元素的属性。如果不存在该属性，则结果为空字符串。
     // reference: https://www.w3.org/TR/SVGTiny12/shapes.html#PolylineElement
@@ -179,15 +185,14 @@ GraphicsPathItem *SVGParser::parsePolyline(const QDomElement &e, const QDomNamed
         }
     }
 
-    // parse attributes
+    // parse attributes: for 'vector-effect'
     pen.syncWithAttributes(e.attributes());
-    brush.syncWithAttributes(e.attributes());
-    path.syncWithAttributes(e.attributes());
 
     // apply all the parsed attributes to item
     item = new GraphicsPathItem {path};
     item->setPen(pen);
     item->setBrush(brush);
+    item->setTransform(transform);
 
     return item;
 }
@@ -198,11 +203,13 @@ GraphicsPathItem *SVGParser::parsePath(const QDomElement &e, const QDomNamedNode
     SVGPen pen;
     SVGBrush brush;
     SVGPainterPath path;
+    SVGTransform transform;
 
     // parse inherited attributes
     pen.syncWithAttributes(inheritedAttributes);
     brush.syncWithAttributes(inheritedAttributes);
     path.syncWithAttributes(inheritedAttributes);
+    transform.syncWithAttributes(inheritedAttributes);
 
     // 获取并解析元素的属性。如果不存在该属性，则结果为空字符串。
     // reference: https://www.w3.org/TR/SVGTiny12/paths.html
@@ -261,15 +268,15 @@ GraphicsPathItem *SVGParser::parsePath(const QDomElement &e, const QDomNamedNode
         }
     }
 
-    // parse attributes
+    // parse attributes: for 'vector-effect' and 'fill-rule'
     pen.syncWithAttributes(e.attributes());
-    brush.syncWithAttributes(e.attributes());
     path.syncWithAttributes(e.attributes());
 
     // apply all the parsed attributes to item
     item = new GraphicsPathItem {path};
     item->setPen(pen);
     item->setBrush(brush);
+    item->setTransform(transform);
 
     return item;
 }

@@ -27,7 +27,9 @@ add_executable(SVGParser main.cpp
         GraphicsPathItem.cpp
         GraphicsPathItem.h
         SVGPainterPath.cpp
-        SVGPainterPath.h)
+        SVGPainterPath.h
+        SVGTransform.cpp
+        SVGTransform.h)
 target_link_libraries(SVGParser
         Qt::Core
         Qt::Gui
