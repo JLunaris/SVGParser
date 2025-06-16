@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QDomDocument>
+#include <QGradient>
 #include <QGraphicsItem>
 #include <QObject>
 #include <QSvgRenderer>
@@ -31,6 +32,8 @@ protected:
 
     virtual GraphicsPathItem *parsePath(const QDomElement &e, const QDomNamedNodeMap &inheritedAttributes) const;
     virtual QDomNamedNodeMap parseG(const QDomElement &e, QDomNamedNodeMap inheritedAttributes) const;
+
+    virtual QLinearGradient parseLinearGradient(const QDomElement &e) const;
 
 public:
     SVGParser();
