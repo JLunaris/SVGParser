@@ -329,6 +329,47 @@ QLinearGradient SVGParser::parseLinearGradient(const QDomElement &e) const
     return linearGradient;
 }
 
+QRadialGradient SVGParser::parseRadialGradient(const QDomElement &e) const
+{
+    // reference: https://www.w3.org/TR/SVGTiny12/painting.html#RadialGradientElement
+    QRadialGradient radialGradient;
+
+    // 获取属性
+    QString gradientUnits {e.attribute("gradientUnits")};
+    qreal cx {e.attribute("cx").toDouble()};
+    qreal cy {e.attribute("cy").toDouble()};
+    qreal r {e.attribute("r").toDouble()};
+    qreal fx {e.attribute("fx").toDouble()};
+    qreal fy {e.attribute("fy").toDouble()};
+
+    // 解析属性
+    if (gradientUnits == "objectBoundingBox")
+        radialGradient.setCoordinateMode(QGradient::ObjectMode);
+    else {
+        assert(gradientUnits == "userSpaceOnUse");
+        radialGradient.setCoordinateMode(QGradient::LogicalMode);
+    }
+
+    radialGradient.setCenter(cx, cy);
+    radialGradient.setRadius(r);
+    radialGradient.setFocalPoint(fx, fy);
+
+    // 获取并解析子结点<stop>的属性
+    QDomNodeList childNodes {e.childNodes()};
+    for (auto childNode: childNodes) {
+        auto childElement {childNode.toElement()};
+
+        qreal offset {childElement.attribute("offset").toDouble()};
+        QColor stopColor {childElement.attribute("stop-color")};
+        float stopOpacity {childElement.attribute("stop-opacity").toFloat()};
+
+        stopColor.setAlphaF(stopOpacity);
+        radialGradient.setColorAt(offset, stopColor);
+    }
+
+    return radialGradient;
+}
+
 SVGParser::SVGParser()
 {
     m_renderer.setOptions(QtSvg::Tiny12FeaturesOnly); // 仅解析SVG 1.2 Tiny规范的标签，不属于该规范的标签一律不解析

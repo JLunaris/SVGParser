@@ -34,6 +34,7 @@ protected:
     virtual QDomNamedNodeMap parseG(const QDomElement &e, QDomNamedNodeMap inheritedAttributes) const;
 
     virtual QLinearGradient parseLinearGradient(const QDomElement &e) const;
+    virtual QRadialGradient parseRadialGradient(const QDomElement &e) const;
 
 public:
     SVGParser();
