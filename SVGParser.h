@@ -12,8 +12,11 @@ class SVGParser : public QObject
 {
     Q_OBJECT
 
+    using GradientMap = std::unordered_map<QString, std::variant<QLinearGradient, QRadialGradient>>;
+
     QDomDocument m_doc;
     QSvgRenderer m_renderer;
+    GradientMap m_globalGradients;
 
 public Q_SLOTS:
     bool loadSVG(const QString &fileName);
@@ -35,6 +38,7 @@ protected:
 
     virtual QLinearGradient parseLinearGradient(const QDomElement &e) const;
     virtual QRadialGradient parseRadialGradient(const QDomElement &e) const;
+    virtual GradientMap parseGradients(const QDomElement &e) const;
 
 public:
     SVGParser();
@@ -46,5 +50,5 @@ public:
 
     QSize size() const { return m_renderer.defaultSize(); }
 
-    [[nodiscard]] std::vector<QGraphicsPathItem *> parse() const;
+    [[nodiscard]] std::vector<QGraphicsPathItem *> parse();
 };

@@ -63,7 +63,7 @@ GraphicsPathItem *SVGParser::parseRect(const QDomElement &e, const QDomNamedNode
 
     // parse inherited attributes
     pen.syncWithAttributes(inheritedAttributes);
-    brush.syncWithAttributes(inheritedAttributes);
+    brush.syncWithAttributes(inheritedAttributes, m_globalGradients);
     path.syncWithAttributes(inheritedAttributes);
     transform.syncWithAttributes(inheritedAttributes);
 
@@ -96,7 +96,7 @@ GraphicsPathItem *SVGParser::parseEllipse(const QDomElement &e, const QDomNamedN
 
     // parse inherited attributes
     pen.syncWithAttributes(inheritedAttributes);
-    brush.syncWithAttributes(inheritedAttributes);
+    brush.syncWithAttributes(inheritedAttributes, m_globalGradients);
     path.syncWithAttributes(inheritedAttributes);
     transform.syncWithAttributes(inheritedAttributes);
 
@@ -129,7 +129,7 @@ GraphicsPathItem *SVGParser::parseCircle(const QDomElement &e, const QDomNamedNo
 
     // parse inherited attributes
     pen.syncWithAttributes(inheritedAttributes);
-    brush.syncWithAttributes(inheritedAttributes);
+    brush.syncWithAttributes(inheritedAttributes, m_globalGradients);
     path.syncWithAttributes(inheritedAttributes);
     transform.syncWithAttributes(inheritedAttributes);
 
@@ -161,7 +161,7 @@ GraphicsPathItem *SVGParser::parsePolyline(const QDomElement &e, const QDomNamed
 
     // parse inherited attributes
     pen.syncWithAttributes(inheritedAttributes);
-    brush.syncWithAttributes(inheritedAttributes);
+    brush.syncWithAttributes(inheritedAttributes, m_globalGradients);
     path.syncWithAttributes(inheritedAttributes);
     transform.syncWithAttributes(inheritedAttributes);
 
@@ -185,8 +185,9 @@ GraphicsPathItem *SVGParser::parsePolyline(const QDomElement &e, const QDomNamed
         }
     }
 
-    // parse attributes: for 'vector-effect'
+    // parse attributes: for 'vector-effect' and 'fill'
     pen.syncWithAttributes(e.attributes());
+    brush.syncWithAttributes(e.attributes(), m_globalGradients);
 
     // apply all the parsed attributes to item
     item = new GraphicsPathItem {path};
@@ -207,7 +208,7 @@ GraphicsPathItem *SVGParser::parsePath(const QDomElement &e, const QDomNamedNode
 
     // parse inherited attributes
     pen.syncWithAttributes(inheritedAttributes);
-    brush.syncWithAttributes(inheritedAttributes);
+    brush.syncWithAttributes(inheritedAttributes, m_globalGradients);
     path.syncWithAttributes(inheritedAttributes);
     transform.syncWithAttributes(inheritedAttributes);
 
@@ -315,7 +316,7 @@ QLinearGradient SVGParser::parseLinearGradient(const QDomElement &e) const
 
     // 获取并解析子结点<stop>的属性
     QDomNodeList childNodes {e.childNodes()};
-    for (auto childNode: childNodes) {
+    for (const auto &childNode: childNodes) {
         auto childElement {childNode.toElement()};
 
         qreal offset {childElement.attribute("offset").toDouble()};
@@ -356,7 +357,7 @@ QRadialGradient SVGParser::parseRadialGradient(const QDomElement &e) const
 
     // 获取并解析子结点<stop>的属性
     QDomNodeList childNodes {e.childNodes()};
-    for (auto childNode: childNodes) {
+    for (const auto &childNode: childNodes) {
         auto childElement {childNode.toElement()};
 
         qreal offset {childElement.attribute("offset").toDouble()};
@@ -370,16 +371,45 @@ QRadialGradient SVGParser::parseRadialGradient(const QDomElement &e) const
     return radialGradient;
 }
 
+SVGParser::GradientMap SVGParser::parseGradients(const QDomElement &e) const
+{
+    // Only parse <linearGradient> and <radialGradient>.
+
+    assert(e.tagName() == "defs");
+
+    GradientMap map;
+    QDomNodeList childNodes {e.childNodes()};
+    for (const auto &childNode: childNodes) {
+        assert(childNode.isElement());
+        auto childElement {childNode.toElement()};
+        if (childElement.tagName() == "linearGradient") {
+            QString id {childElement.attribute("id")};
+            auto linearGradient {parseLinearGradient(childElement)};
+            map.insert({id, linearGradient});
+        } else if (childElement.tagName() == "radialGradient") {
+            QString id {childElement.attribute("id")};
+            auto radialGradient {parseRadialGradient(childElement)};
+            map.insert({id, radialGradient});
+        }
+    }
+
+    return map;
+}
+
 SVGParser::SVGParser()
 {
     m_renderer.setOptions(QtSvg::Tiny12FeaturesOnly); // 仅解析SVG 1.2 Tiny规范的标签，不属于该规范的标签一律不解析
     // 这样做是为了避免Qt将复杂的标签强行解析为<image>标签，这样的图元缩放会失真
 }
 
-std::vector<QGraphicsPathItem *> SVGParser::parse() const
+std::vector<QGraphicsPathItem *> SVGParser::parse()
 {
     std::vector<QGraphicsPathItem *> items;
     QDomElement SVGNode {this->SVGNode()};
+
+    // 解析<defs>元素结点
+    QDomElement defsNode {SVGNode.firstChildElement("defs")};
+    m_globalGradients = parseGradients(defsNode);
 
     // 开始解析图形元素
     QDomElement outerGNode {SVGNode.firstChildElement("g")};
