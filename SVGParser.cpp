@@ -379,6 +379,11 @@ SVGParser::GradientMap SVGParser::parseGradients(const QDomElement &e) const
 
     GradientMap map;
     QDomNodeList childNodes {e.childNodes()};
+
+    // Qt6.9对迭代器支持有bug, 当childNodes为空时, 其begin()和end()有时不相等, 因此先判空, 不为空时再遍历
+    if (childNodes.isEmpty())
+        return map;
+
     for (const auto &childNode: childNodes) {
         assert(childNode.isElement());
         auto childElement {childNode.toElement()};
