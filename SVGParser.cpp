@@ -51,6 +51,45 @@ bool SVGParser::loadSVG(const QString &fileName)
     return true;
 }
 
+QDomNamedNodeMap SVGParser::parseG(const QDomElement &e, QDomNamedNodeMap inheritedAttributes) const
+{
+    QDomNamedNodeMap localAttributes {e.attributes()};
+    for (int i {0}; i < localAttributes.count(); ++i) {
+        inheritedAttributes.setNamedItem(localAttributes.item(i));
+    }
+    return inheritedAttributes;
+}
+
+SVGParser::GradientMap SVGParser::parseGradients(const QDomElement &e) const
+{
+    // Only parse <linearGradient> and <radialGradient>.
+
+    assert(e.tagName() == "defs");
+
+    GradientMap map;
+    QDomNodeList childNodes {e.childNodes()};
+
+    // Qt6.9对迭代器支持有bug, 当childNodes为空时, 其begin()和end()有时不相等, 因此先判空, 不为空时再遍历
+    if (childNodes.isEmpty())
+        return map;
+
+    for (const auto &childNode: childNodes) {
+        assert(childNode.isElement());
+        auto childElement {childNode.toElement()};
+        if (childElement.tagName() == "linearGradient") {
+            QString id {childElement.attribute("id")};
+            auto linearGradient {parseLinearGradient(childElement)};
+            map.insert({id, linearGradient});
+        } else if (childElement.tagName() == "radialGradient") {
+            QString id {childElement.attribute("id")};
+            auto radialGradient {parseRadialGradient(childElement)};
+            map.insert({id, radialGradient});
+        }
+    }
+
+    return map;
+}
+
 QGraphicsPathItem *SVGParser::parseRect(const QDomElement &e, const QDomNamedNodeMap &inheritedAttributes) const
 {
     QGraphicsPathItem *item {};
@@ -280,15 +319,6 @@ QGraphicsPathItem *SVGParser::parsePath(const QDomElement &e, const QDomNamedNod
     return item;
 }
 
-QDomNamedNodeMap SVGParser::parseG(const QDomElement &e, QDomNamedNodeMap inheritedAttributes) const
-{
-    QDomNamedNodeMap localAttributes {e.attributes()};
-    for (int i {0}; i < localAttributes.count(); ++i) {
-        inheritedAttributes.setNamedItem(localAttributes.item(i));
-    }
-    return inheritedAttributes;
-}
-
 QLinearGradient SVGParser::parseLinearGradient(const QDomElement &e) const
 {
     // reference: https://www.w3.org/TR/SVGTiny12/painting.html#LinearGradientElement
@@ -367,36 +397,6 @@ QRadialGradient SVGParser::parseRadialGradient(const QDomElement &e) const
     }
 
     return radialGradient;
-}
-
-SVGParser::GradientMap SVGParser::parseGradients(const QDomElement &e) const
-{
-    // Only parse <linearGradient> and <radialGradient>.
-
-    assert(e.tagName() == "defs");
-
-    GradientMap map;
-    QDomNodeList childNodes {e.childNodes()};
-
-    // Qt6.9对迭代器支持有bug, 当childNodes为空时, 其begin()和end()有时不相等, 因此先判空, 不为空时再遍历
-    if (childNodes.isEmpty())
-        return map;
-
-    for (const auto &childNode: childNodes) {
-        assert(childNode.isElement());
-        auto childElement {childNode.toElement()};
-        if (childElement.tagName() == "linearGradient") {
-            QString id {childElement.attribute("id")};
-            auto linearGradient {parseLinearGradient(childElement)};
-            map.insert({id, linearGradient});
-        } else if (childElement.tagName() == "radialGradient") {
-            QString id {childElement.attribute("id")};
-            auto radialGradient {parseRadialGradient(childElement)};
-            map.insert({id, radialGradient});
-        }
-    }
-
-    return map;
 }
 
 SVGParser::SVGParser()

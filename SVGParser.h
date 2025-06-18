@@ -19,6 +19,10 @@ class SVGParser : public QObject
 public Q_SLOTS:
     bool loadSVG(const QString &fileName);
 
+private:
+    QDomNamedNodeMap parseG(const QDomElement &e, QDomNamedNodeMap inheritedAttributes) const;
+    GradientMap parseGradients(const QDomElement &e) const;
+
 protected:
     // 获取<svg>结点
     QDomElement SVGNode() const { return m_doc.documentElement(); }
@@ -30,13 +34,9 @@ protected:
     virtual QGraphicsPathItem *parsePolyline(const QDomElement &e, const QDomNamedNodeMap &inheritedAttributes) const;
     // <line>被QSvgGenerator视为<polyline>的一种
     // <polygon>被QSvgGenerator视为<path>的一种
-
     virtual QGraphicsPathItem *parsePath(const QDomElement &e, const QDomNamedNodeMap &inheritedAttributes) const;
-    virtual QDomNamedNodeMap parseG(const QDomElement &e, QDomNamedNodeMap inheritedAttributes) const;
-
     virtual QLinearGradient parseLinearGradient(const QDomElement &e) const;
     virtual QRadialGradient parseRadialGradient(const QDomElement &e) const;
-    virtual GradientMap parseGradients(const QDomElement &e) const;
 
 public:
     SVGParser();
