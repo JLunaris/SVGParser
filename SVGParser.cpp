@@ -1,13 +1,11 @@
 #include "SVGParser.h"
 
-#include "GraphicsPathItem.h"
 #include "SVGBrush.h"
 #include "SVGPainterPath.h"
 #include "SVGPen.h"
 #include "SVGTransform.h"
 
 #include <QBuffer>
-#include <QDebug>
 #include <QPainter>
 #include <QRegularExpression>
 #include <QSvgGenerator>
@@ -53,9 +51,9 @@ bool SVGParser::loadSVG(const QString &fileName)
     return true;
 }
 
-GraphicsPathItem *SVGParser::parseRect(const QDomElement &e, const QDomNamedNodeMap &inheritedAttributes) const
+QGraphicsPathItem *SVGParser::parseRect(const QDomElement &e, const QDomNamedNodeMap &inheritedAttributes) const
 {
-    GraphicsPathItem *item {};
+    QGraphicsPathItem *item {};
     SVGPen pen;
     SVGBrush brush;
     SVGPainterPath path;
@@ -78,7 +76,7 @@ GraphicsPathItem *SVGParser::parseRect(const QDomElement &e, const QDomNamedNode
 
     // apply all the parsed attributes to item
     path.addRect(x, y, width, height);
-    item = new GraphicsPathItem {path};
+    item = new QGraphicsPathItem {path};
     item->setPen(pen);
     item->setBrush(brush);
     item->setTransform(transform);
@@ -86,9 +84,9 @@ GraphicsPathItem *SVGParser::parseRect(const QDomElement &e, const QDomNamedNode
     return item;
 }
 
-GraphicsPathItem *SVGParser::parseEllipse(const QDomElement &e, const QDomNamedNodeMap &inheritedAttributes) const
+QGraphicsPathItem *SVGParser::parseEllipse(const QDomElement &e, const QDomNamedNodeMap &inheritedAttributes) const
 {
-    GraphicsPathItem *item {};
+    QGraphicsPathItem *item {};
     SVGPen pen;
     SVGBrush brush;
     SVGPainterPath path;
@@ -111,7 +109,7 @@ GraphicsPathItem *SVGParser::parseEllipse(const QDomElement &e, const QDomNamedN
 
     // apply all the parsed attributes to item
     path.addEllipse(cx, cy, rx, ry);
-    item = new GraphicsPathItem {path};
+    item = new QGraphicsPathItem {path};
     item->setPen(pen);
     item->setBrush(brush);
     item->setTransform(transform);
@@ -119,9 +117,9 @@ GraphicsPathItem *SVGParser::parseEllipse(const QDomElement &e, const QDomNamedN
     return item;
 }
 
-GraphicsPathItem *SVGParser::parseCircle(const QDomElement &e, const QDomNamedNodeMap &inheritedAttributes) const
+QGraphicsPathItem *SVGParser::parseCircle(const QDomElement &e, const QDomNamedNodeMap &inheritedAttributes) const
 {
-    GraphicsPathItem *item {};
+    QGraphicsPathItem *item {};
     SVGPen pen;
     SVGBrush brush;
     SVGPainterPath path;
@@ -143,7 +141,7 @@ GraphicsPathItem *SVGParser::parseCircle(const QDomElement &e, const QDomNamedNo
 
     // apply all the parsed attributes to item
     path.addEllipse(cx, cy, r, r);
-    item = new GraphicsPathItem {path};
+    item = new QGraphicsPathItem {path};
     item->setPen(pen);
     item->setBrush(brush);
     item->setTransform(transform);
@@ -151,9 +149,9 @@ GraphicsPathItem *SVGParser::parseCircle(const QDomElement &e, const QDomNamedNo
     return item;
 }
 
-GraphicsPathItem *SVGParser::parsePolyline(const QDomElement &e, const QDomNamedNodeMap &inheritedAttributes) const
+QGraphicsPathItem *SVGParser::parsePolyline(const QDomElement &e, const QDomNamedNodeMap &inheritedAttributes) const
 {
-    GraphicsPathItem *item {};
+    QGraphicsPathItem *item {};
     SVGPen pen;
     SVGBrush brush;
     SVGPainterPath path;
@@ -190,7 +188,7 @@ GraphicsPathItem *SVGParser::parsePolyline(const QDomElement &e, const QDomNamed
     brush.syncWithAttributes(e.attributes(), m_globalGradients);
 
     // apply all the parsed attributes to item
-    item = new GraphicsPathItem {path};
+    item = new QGraphicsPathItem {path};
     item->setPen(pen);
     item->setBrush(brush);
     item->setTransform(transform);
@@ -198,9 +196,9 @@ GraphicsPathItem *SVGParser::parsePolyline(const QDomElement &e, const QDomNamed
     return item;
 }
 
-GraphicsPathItem *SVGParser::parsePath(const QDomElement &e, const QDomNamedNodeMap &inheritedAttributes) const
+QGraphicsPathItem *SVGParser::parsePath(const QDomElement &e, const QDomNamedNodeMap &inheritedAttributes) const
 {
-    GraphicsPathItem *item {};
+    QGraphicsPathItem *item {};
     SVGPen pen;
     SVGBrush brush;
     SVGPainterPath path;
@@ -274,7 +272,7 @@ GraphicsPathItem *SVGParser::parsePath(const QDomElement &e, const QDomNamedNode
     path.syncWithAttributes(e.attributes());
 
     // apply all the parsed attributes to item
-    item = new GraphicsPathItem {path};
+    item = new QGraphicsPathItem {path};
     item->setPen(pen);
     item->setBrush(brush);
     item->setTransform(transform);

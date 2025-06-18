@@ -6,8 +6,6 @@
 #include <QObject>
 #include <QSvgRenderer>
 
-class GraphicsPathItem;
-
 class SVGParser : public QObject
 {
     Q_OBJECT
@@ -26,14 +24,14 @@ protected:
     QDomElement SVGNode() const { return m_doc.documentElement(); }
 
     // 解析各结点
-    virtual GraphicsPathItem *parseRect(const QDomElement &e, const QDomNamedNodeMap &inheritedAttributes) const;
-    virtual GraphicsPathItem *parseEllipse(const QDomElement &e, const QDomNamedNodeMap &inheritedAttributes) const;
-    virtual GraphicsPathItem *parseCircle(const QDomElement &e, const QDomNamedNodeMap &inheritedAttributes) const;
-    virtual GraphicsPathItem *parsePolyline(const QDomElement &e, const QDomNamedNodeMap &inheritedAttributes) const;
+    virtual QGraphicsPathItem *parseRect(const QDomElement &e, const QDomNamedNodeMap &inheritedAttributes) const;
+    virtual QGraphicsPathItem *parseEllipse(const QDomElement &e, const QDomNamedNodeMap &inheritedAttributes) const;
+    virtual QGraphicsPathItem *parseCircle(const QDomElement &e, const QDomNamedNodeMap &inheritedAttributes) const;
+    virtual QGraphicsPathItem *parsePolyline(const QDomElement &e, const QDomNamedNodeMap &inheritedAttributes) const;
     // <line>被QSvgGenerator视为<polyline>的一种
     // <polygon>被QSvgGenerator视为<path>的一种
 
-    virtual GraphicsPathItem *parsePath(const QDomElement &e, const QDomNamedNodeMap &inheritedAttributes) const;
+    virtual QGraphicsPathItem *parsePath(const QDomElement &e, const QDomNamedNodeMap &inheritedAttributes) const;
     virtual QDomNamedNodeMap parseG(const QDomElement &e, QDomNamedNodeMap inheritedAttributes) const;
 
     virtual QLinearGradient parseLinearGradient(const QDomElement &e) const;

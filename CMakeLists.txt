@@ -24,8 +24,6 @@ add_executable(SVGParser main.cpp
         SVGPen.h
         SVGBrush.cpp
         SVGBrush.h
-        GraphicsPathItem.cpp
-        GraphicsPathItem.h
         SVGPainterPath.cpp
         SVGPainterPath.h
         SVGTransform.cpp
