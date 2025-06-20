@@ -12,6 +12,16 @@
 #include <QObject>
 #include <QSvgRenderer>
 
+template<typename GraphicsItem>
+concept SVGStyledGraphicsItem =
+        std::derived_from<GraphicsItem, QGraphicsItem> &&
+        requires(GraphicsItem *item, SVGPen pen, SVGBrush brush, SVGPainterPath path, SVGTransform transform) {
+            item->setPen(pen);
+            item->setBrush(brush);
+            item->setPath(path);
+            item->setTransform(transform);
+        };
+
 class SVGParser : public QObject
 {
     Q_OBJECT
@@ -65,11 +75,11 @@ public:
 
     [[nodiscard]] std::vector<ParseResult> parse();
 
-    template<std::derived_from<QGraphicsItem> GraphicsItem>
+    template<SVGStyledGraphicsItem GraphicsItem>
     std::vector<GraphicsItem *> parse(QGraphicsScene *scene = nullptr);
 };
 
-template<std::derived_from<QGraphicsItem> GraphicsItem>
+template<SVGStyledGraphicsItem GraphicsItem>
 std::vector<GraphicsItem *> SVGParser::parse(QGraphicsScene *scene)
 {
     std::vector<ParseResult> parseResults {parse()};
