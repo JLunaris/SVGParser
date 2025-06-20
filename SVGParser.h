@@ -12,9 +12,6 @@
 #include <QObject>
 #include <QSvgRenderer>
 
-template<typename T>
-concept parsable = true;
-
 class SVGParser : public QObject
 {
     Q_OBJECT
