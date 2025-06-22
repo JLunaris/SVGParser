@@ -46,13 +46,20 @@ bool SVGParser::loadSVG(const QString &fileName)
     return true;
 }
 
-QDomNamedNodeMap SVGParser::parseG(const QDomElement &e, QDomNamedNodeMap inheritedAttributes) const
+QDomNamedNodeMap SVGParser::parseG(const QDomElement &e, const QDomNamedNodeMap &inheritedAttributes)
 {
     QDomNamedNodeMap localAttributes {e.attributes()};
-    for (int i {0}; i < localAttributes.count(); ++i) {
-        inheritedAttributes.setNamedItem(localAttributes.item(i));
-    }
-    return inheritedAttributes;
+
+    QDomElement elementForResult {m_doc.createElement("elementForResult")};
+    QDomNamedNodeMap result {elementForResult.attributes()};
+
+    for (int i {0}; i < inheritedAttributes.count(); ++i)
+        result.setNamedItem(inheritedAttributes.item(i));
+
+    for (int i {0}; i < localAttributes.count(); ++i)
+        result.setNamedItem(localAttributes.item(i));
+
+    return result;
 }
 
 SVGParser::GradientMap SVGParser::parseGradients(const QDomElement &e) const

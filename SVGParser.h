@@ -45,7 +45,7 @@ public Q_SLOTS:
     bool loadSVG(const QString &fileName);
 
 private:
-    QDomNamedNodeMap parseG(const QDomElement &e, QDomNamedNodeMap inheritedAttributes) const;
+    QDomNamedNodeMap parseG(const QDomElement &e, const QDomNamedNodeMap &inheritedAttributes);
     GradientMap parseGradients(const QDomElement &e) const;
 
 protected:
