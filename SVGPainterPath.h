@@ -10,7 +10,7 @@ class SVGPainterPath : public QPainterPath
 public:
     SVGPainterPath() noexcept;
     explicit SVGPainterPath(const QPointF &startPoint);
-    SVGPainterPath(const SVGPainterPath &other);
+    SVGPainterPath(const SVGPainterPath &other) = default;
 
     void syncWithAttributes(const QDomNamedNodeMap &attributes);
 };
