@@ -239,6 +239,7 @@ SVGParser::ParseResult SVGParser::parsePath(const QDomElement &e, const QDomName
     QStringView dView {d};
     if (!dView.isEmpty()) {
         QList<QStringView> stringList {dView.split(' ', Qt::SkipEmptyParts)};
+        path.reserve(static_cast<int>(stringList.size()));
 
         auto it {stringList.begin()};
         while (it != stringList.end()) {
