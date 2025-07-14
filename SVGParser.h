@@ -90,8 +90,7 @@ std::vector<GraphicsItem *> SVGParser::parse(QGraphicsScene *scene)
 
         item->setPen(parseResult.pen);
         item->setBrush(parseResult.brush);
-        item->setPath(parseResult.painterPath);
-        item->setTransform(parseResult.transform);
+        item->setPath(parseResult.transform.map(parseResult.painterPath));
 
         items.push_back(item);
 
